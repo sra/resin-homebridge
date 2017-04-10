@@ -1,27 +1,27 @@
 FROM resin/%%RESIN_MACHINE_NAME%%-node:latest
-MAINTAINER Glavin Wiechert <glavin.wiechert@gmail.com>
 
 # Install more dependencies
-RUN apt-get update
-RUN apt-get install -y \
-    curl wget git python build-essential \
-    make g++ libavahi-compat-libdnssd-dev \
-    libkrb5-dev vim net-tools libnss-mdns \
-    avahi-daemon avahi-discover
-
-# Install homebridge
-RUN npm install --global --production homebridge --unsafe-perm
+RUN apt-get update \
+    && apt-get install -y curl wget git python build-essential make g++ libavahi-compat-libdnssd-dev libkrb5-dev vim net-tools libnss-mdns avahi-daemon avahi-discover avahi-utils \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Defines our working directory in container
 WORKDIR /usr/src/app
 
+# This install npm dependencies on the resin.io build server,
+# making sure to clean up the artifacts it creates in order to reduce the image size.
+# Install homebridge
+RUN npm install --global --production homebridge --unsafe-perm
+
 # Copies the package.json first for better cache on later pushes
 COPY package.json package.json
 
-# This install npm dependencies on the resin.io build server,
-# making sure to clean up the artifacts it creates in order to reduce the image size.
-RUN JOBS=MAX npm install --production --unsafe-perm && \
-    npm cache clean && rm -rf /tmp/*
+RUN JOBS=MAX npm install --production --unsafe-perm  \
+    && npm cache clean && rm -rf /tmp/*
+
+#RUN sed -i '/^use-ipv6=/s/=.*/=no/' /etc/avahi/avahi-daemon.conf 
+    #&& sed -i -e "s@#enable-dbus=yes@enable-dbus=no@" -e "s@#host-name=foo@host-name=$(echo $RESIN_DEVICE_UUID | cut -c1-7)@" /etc/avahi/avahi-daemon.conf
 
 # This will copy all files in our root to the working directory in the container
 COPY . ./
