@@ -6,10 +6,11 @@ Resin.io application for Homebridge and SmartThings
 Clone this repository and make customizations to the configuration for your site in the
 `.homebridge/config.json` file.
 
+
 1. Replace the username with a unique MAC address in all upper case
 1. Replace the pin with a unique code for your installation
 1. Make sure that app_url points to the smart things endpoint for your region ... where your developer account is located and hub claimed
-1. Add the app_id and access_token from the `homebridge-smarthings` smart app
+1. copy the platforms portion of the configuration text from the smartapp on your phone into the config.json 
 1. Add and commit your changes in git
 
 ```
